@@ -36,6 +36,7 @@ export class LoginComponent implements OnInit {
     Swal.showLoading();
     this.auth.login(this.usuario).subscribe(
       resp => {
+
         if (this.recordar) {
           sessionStorage.setItem("email", this.usuario.email);
         }

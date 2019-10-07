@@ -38,8 +38,7 @@ export class AuthService {
       .post(`${this.url}:signUp?key=${this.API_KEY}`, autData)
       .pipe(
         map(resp => {
-          this.guardarToken(resp[this.respToken]);
-          this.expire = resp[this.respToken];
+          this.guardarToken(resp[this.respToken], resp[this.respExpire]);
           return resp;
         })
       );
@@ -57,8 +56,7 @@ export class AuthService {
       .post(`${this.url}:signInWithPassword?key=${this.API_KEY}`, autData)
       .pipe(
         map(resp => {
-          this.guardarToken(resp[this.respToken]);
-          this.expire = resp[this.respToken];
+          this.guardarToken(resp[this.respToken], resp[this.respExpire]);
           return resp;
         })
       );
@@ -70,12 +68,13 @@ export class AuthService {
   }
 
   // Guardar token
-  guardarToken(idtoken: string) {
+  guardarToken(idtoken: string, expire: number) {
     this.userToken = idtoken;
+    this.expire = expire;
     localStorage.setItem("token", idtoken);
-    const hoy = new Date();
+    let hoy = new Date();
     hoy.setSeconds(this.expire);
-    localStorage.setItem("expire", hoy.getDate().toString());
+    localStorage.setItem("expire", hoy.setSeconds(this.expire).toString());
   }
 
   // getToken
@@ -89,10 +88,11 @@ export class AuthService {
   }
 
   autenticado() {
+    this.leerToken();
     if (this.userToken.length < 2) {
       return false;
     }
-    const expiraN = Number(localStorage.getItem("expira"));
+    const expiraN = Number(localStorage.getItem("expire"));
     const expira = new Date();
     expira.setTime(expiraN);
     if (expira < new Date()) {
